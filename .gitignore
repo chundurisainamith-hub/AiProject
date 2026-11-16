@@ -1,0 +1,39 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Production builds
+dist/
+frontend/dist/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# Pytest / Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local Environment & Secrets
+.env
+*.local
+
+# Temporary / Scratch files
+uv.exe
+uvw.exe
+uvx.exe
+ner-landslide-guard-repo.zip
+repo_extracted/
+*.log
+
+# Operating System files
+.DS_Store
+Thumbs.db

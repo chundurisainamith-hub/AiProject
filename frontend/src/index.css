@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+  --bg: #0A1220;
+  --bg2: #101C30;
+  --glass: rgba(255, 255, 255, 0.06);
+  --line: rgba(255, 255, 255, 0.12);
+  --ink: #EEF3FB;
+  --soft: #9FB0C8;
+  --or: #FF6A2B;
+}
+
+body {
+  margin: 0;
+  background: radial-gradient(900px 500px at 80% -10%, rgba(255, 106, 43, 0.14), transparent),
+              linear-gradient(180deg, var(--bg), #070C16);
+  min-height: 100vh;
+  font-family: 'Manrope', 'Noto Sans Devanagari', 'Noto Sans Tamil', 'Noto Sans Telugu', 'Noto Sans Malayalam', 'Noto Sans Kannada', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphism utility classes */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.glass-panel-hover {
+  transition: all 0.2s ease-in-out;
+}
+.glass-panel-hover:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.38);
+}
+
+/* Custom horizontal scrollbar for navigation */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Custom subtle scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0A1220;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 106, 43, 0.6);
+}
+
+/* Leaflet dark theme map enhancements */
+.leaflet-container {
+  background: #0B1626 !important;
+  font-family: inherit;
+}
+.leaflet-popup-content-wrapper {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  border: none !important;
+}
+.leaflet-popup-content {
+  margin: 0 !important;
+  line-height: inherit !important;
+}
+.leaflet-popup-tip {
+  background: #0D1829 !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+}
+.leaflet-container a.leaflet-popup-close-button {
+  color: #9FB0C8 !important;
+  padding: 6px !important;
+  top: 8px !important;
+  right: 8px !important;
+}
