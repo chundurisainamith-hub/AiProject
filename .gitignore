@@ -37,3 +37,7 @@ repo_extracted/
 # Operating System files
 .DS_Store
 Thumbs.db
+
+# Vercel
+.vercel
+
