@@ -74,8 +74,8 @@ def seed_database(db: Session):
     if db.query(User).count() == 0:
         # Default owner admin
         owner = User(
-            username="owner@adm.com",
-            hashed_password=get_password_hash("admin123"),
+            username="namith@adm.com",
+            hashed_password=get_password_hash("sai2008"),
             role="owner",
             is_active=True
         )

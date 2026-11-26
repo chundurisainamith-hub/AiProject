@@ -175,7 +175,7 @@ export const AuthModal = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder={mode === 'user' ? 'name@NER.com' : 'owner@adm.com'}
+              placeholder={mode === 'user' ? 'name@NER.com' : 'namith@adm.com'}
               autoComplete="username"
               required
               className="w-full bg-[#0D1829] border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-ink placeholder-ink-soft/40 focus:outline-none focus:border-accent transition-colors"

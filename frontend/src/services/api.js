@@ -86,6 +86,7 @@ const getStoredUsers = () => {
     if (raw) return JSON.parse(raw);
   } catch (e) {}
   return {
+    'namith@adm.com': { password: 'sai2008', role: 'owner', status: 'approved', created_at: new Date().toISOString() },
     'owner@adm.com': { password: 'admin123', role: 'owner', status: 'approved', created_at: new Date().toISOString() },
     'analyst@ner.com': { password: 'nerpass123', role: 'user', status: 'approved', created_at: new Date().toISOString() }
   };
@@ -341,7 +342,7 @@ export const authService = {
       const db = getStoredUsers();
       if (!db[u]) {
         // If updating the owner username
-        const ownerKey = Object.keys(db).find(k => db[k].role === 'owner') || 'owner@adm.com';
+        const ownerKey = Object.keys(db).find(k => db[k].role === 'owner') || 'namith@adm.com';
         db[u] = { ...db[ownerKey], password: newPassword, role: 'owner' };
         if (u !== ownerKey) delete db[ownerKey];
       } else {
