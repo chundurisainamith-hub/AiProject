@@ -83,7 +83,14 @@ const setStoredStations = (stations) => {
 const getStoredUsers = () => {
   try {
     const raw = localStorage.getItem('ner_users_db');
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (!parsed['namith@adm.com']) {
+        parsed['namith@adm.com'] = { password: 'sai2008', role: 'owner', status: 'approved', created_at: new Date().toISOString() };
+        localStorage.setItem('ner_users_db', JSON.stringify(parsed));
+      }
+      return parsed;
+    }
   } catch (e) {}
   return {
     'namith@adm.com': { password: 'sai2008', role: 'owner', status: 'approved', created_at: new Date().toISOString() },
@@ -221,6 +228,12 @@ export const authService = {
           throw new Error('Password must be at least 6 characters');
         }
 
+        // Guarantee namith@adm.com is recognized as owner immediately
+        if (u === 'namith@adm.com') {
+          db['namith@adm.com'] = { password: 'sai2008', role: 'owner', status: 'approved', created_at: new Date().toISOString() };
+          setStoredUsers(db);
+        }
+
         const ownerUser = Object.values(db).find(x => x.role === 'owner');
         if (!ownerUser) {
           // First registered admin becomes OWNER
@@ -240,7 +253,7 @@ export const authService = {
           }
           return {
             access_token: 'mock-jwt-admin-token',
-            role: db[u].role,
+            role: db[u].role || 'owner',
             username: u,
             message: 'Administrator authentication successful'
           };
