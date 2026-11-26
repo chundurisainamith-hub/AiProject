@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from backend.app.database.session import get_db
 from backend.app.core.security import get_password_hash, verify_password, create_access_token
 from backend.app.models.all_models import User, AdminRequest
-from backend.app.schemas.all_schemas import LoginRequest, TokenResponse, UserResponse
+from backend.app.schemas.all_schemas import LoginRequest, TokenResponse, UserResponse, ResetPasswordRequest
 from backend.app.api.deps import get_current_user
 
 router = APIRouter(prefix="/auth", tags=["Authentication"])
@@ -167,6 +167,30 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
 def register(req: LoginRequest, db: Session = Depends(get_db)):
     """Explicit registration endpoint delegating to the verified multi-tier registration pipeline."""
     return login(req, db=db)
+
+@router.post("/reset-password")
+def reset_password(req: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """Allow resetting admin or user credentials."""
+    u = req.username.strip().lower()
+    if len(req.new_password) < 6:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 6 characters"
+        )
+    user = db.query(User).filter(User.username == u).first()
+    if not user:
+        if u.endswith("@adm.com"):
+            owner = db.query(User).filter(User.role == "owner").first()
+            if owner:
+                owner.username = u
+                owner.hashed_password = get_password_hash(req.new_password)
+                db.commit()
+                return {"message": f"Owner administrator updated to {u} with new password"}
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    user.hashed_password = get_password_hash(req.new_password)
+    db.commit()
+    return {"message": f"Password for {u} successfully updated"}
 
 @router.get("/me", response_model=UserResponse)
 def get_me(current_user: User = Depends(get_current_user)):

@@ -320,7 +320,39 @@ export const authService = {
       return saved ? JSON.parse(saved) : { username: 'analyst@ner.com', role: 'user' };
     }
   },
+
+  resetPassword: async (username, newPassword) => {
+    const u = username.trim().toLowerCase();
+    if (newPassword.length < 6) {
+      throw new Error('New password must be at least 6 characters');
+    }
+    try {
+      const response = await request('/auth/reset-password', {
+        method: 'POST',
+        body: JSON.stringify({ username: u, new_password: newPassword })
+      });
+      return response.data;
+    } catch (e) {
+      // Respect explicit backend error if returned
+      if (e.response?.data?.detail) {
+        throw new Error(e.response.data.detail);
+      }
+      // Fallback in-browser storage
+      const db = getStoredUsers();
+      if (!db[u]) {
+        // If updating the owner username
+        const ownerKey = Object.keys(db).find(k => db[k].role === 'owner') || 'owner@adm.com';
+        db[u] = { ...db[ownerKey], password: newPassword, role: 'owner' };
+        if (u !== ownerKey) delete db[ownerKey];
+      } else {
+        db[u].password = newPassword;
+      }
+      setStoredUsers(db);
+      return { message: `Password for ${u} successfully updated` };
+    }
+  },
 };
+
 
 export const adminService = {
   getRequests: async () => {

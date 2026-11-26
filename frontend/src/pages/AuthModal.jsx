@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { authService } from '../services/api';
 import { AVAILABLE_LANGUAGES } from '../i18n';
-import { ShieldCheck, UserCheck, Lock, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ShieldCheck, UserCheck, Lock, AlertCircle, CheckCircle2, KeyRound } from 'lucide-react';
 
 export const AuthModal = () => {
   const { t, i18n } = useTranslation();
@@ -11,6 +12,7 @@ export const AuthModal = () => {
   const [mode, setMode] = useState('user'); // 'user' | 'admin'
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [isResetting, setIsResetting] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -22,6 +24,7 @@ export const AuthModal = () => {
 
   const handleModeSwitch = (newMode) => {
     setMode(newMode);
+    setIsResetting(false);
     setError('');
     setNotice('');
   };
@@ -51,12 +54,16 @@ export const AuthModal = () => {
 
     setSubmitting(true);
     try {
+      if (isResetting) {
+        await authService.resetPassword(cleanUser, password);
+        setNotice('Password updated successfully! Logging you in...');
+      }
       const res = await login(cleanUser, password, mode);
       if (res?.message && !res.user) {
         setNotice(res.message);
       }
     } catch (err) {
-      const msg = err.message || 'Login failed';
+      const msg = err.message || 'Operation failed';
       // If it is a pending request notice (HTTP 202 or similar status message)
       if (msg.includes('Request sent') || msg.includes('waiting for approval')) {
         setNotice(msg);
@@ -126,9 +133,28 @@ export const AuthModal = () => {
           </button>
         </div>
 
-        <h2 className="text-lg font-bold text-ink mb-1.5">{t('auth.signIn', 'Sign in')}</h2>
+        <div className="flex items-center justify-between mb-1.5">
+          <h2 className="text-lg font-bold text-ink">
+            {isResetting ? 'Reset / Change Credentials' : t('auth.signIn', 'Sign in')}
+          </h2>
+          <button
+            type="button"
+            onClick={() => {
+              setIsResetting(!isResetting);
+              setError('');
+              setNotice('');
+            }}
+            className="text-xs font-bold text-accent hover:underline flex items-center gap-1"
+          >
+            <KeyRound className="w-3.5 h-3.5" />
+            {isResetting ? 'Back to Sign in' : 'Forgot / Change?'}
+          </button>
+        </div>
+
         <p className="text-xs text-ink-soft mb-5 leading-relaxed">
-          {mode === 'user'
+          {isResetting
+            ? `Enter your ${mode === 'admin' ? '@adm.com admin' : '@ner.com user'} username and desired new password (min 6 chars) to save & sign in.`
+            : mode === 'user'
             ? t(
                 'auth.userHint',
                 'Use your username ending in @NER.com. First time? Enter the password you want and it becomes your password; use the same one next time.'
@@ -149,7 +175,7 @@ export const AuthModal = () => {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder={mode === 'user' ? 'name@NER.com' : 'name@adm.com'}
+              placeholder={mode === 'user' ? 'name@NER.com' : 'owner@adm.com'}
               autoComplete="username"
               required
               className="w-full bg-[#0D1829] border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-ink placeholder-ink-soft/40 focus:outline-none focus:border-accent transition-colors"
@@ -158,14 +184,14 @@ export const AuthModal = () => {
 
           <div>
             <label className="block text-xs font-bold text-ink-soft uppercase tracking-wider mb-1.5">
-              {t('auth.password', 'Password')}
+              {isResetting ? 'New Password' : t('auth.password', 'Password')}
             </label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder={t('auth.passwordPlaceholder', 'At least 6 characters')}
-              autoComplete="current-password"
+              autoComplete={isResetting ? 'new-password' : 'current-password'}
               required
               className="w-full bg-[#0D1829] border border-white/10 rounded-xl px-3.5 py-2.5 text-sm text-ink placeholder-ink-soft/40 focus:outline-none focus:border-accent transition-colors"
             />
@@ -192,9 +218,14 @@ export const AuthModal = () => {
             disabled={submitting}
             className="w-full py-3 px-4 rounded-xl bg-accent hover:bg-accent-hover text-white text-sm font-extrabold shadow-lg shadow-accent/25 transition-all duration-200 disabled:opacity-50"
           >
-            {submitting ? t('common.loading', 'Authenticating...') : t('auth.signIn', 'Sign in')}
+            {submitting
+              ? t('common.loading', 'Processing...')
+              : isResetting
+              ? 'Save New Password & Sign In'
+              : t('auth.signIn', 'Sign in')}
           </button>
         </form>
+
 
         <div className="mt-5 pt-4 border-t border-white/10 text-center">
           <p className="text-[11px] text-ink-soft/80 leading-normal">

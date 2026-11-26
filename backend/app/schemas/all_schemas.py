@@ -8,6 +8,10 @@ class LoginRequest(BaseModel):
     password: str
     login_type: Optional[str] = "user"
 
+class ResetPasswordRequest(BaseModel):
+    username: str
+    new_password: str
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
